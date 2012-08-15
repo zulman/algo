@@ -105,7 +105,7 @@ void readIntegerFile(const string& fileName, vector<long>& dest)throw (invalid_a
   }
 }
 
-long _tmain(long argc, _TCHAR* argv[])
+long main()
 {
 	vector<long> myInts;
   const string fileName = "IntegerArray.txt";
