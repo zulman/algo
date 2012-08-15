@@ -1,3 +1,3 @@
-javac HelloWorld.java
-java HelloWorld
+javac *.java -d bin
+java bin/Main
 pause
