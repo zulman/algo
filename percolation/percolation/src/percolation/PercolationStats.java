@@ -6,10 +6,10 @@
  */
 public class PercolationStats {
 
-  private double _mean;
-  private double _stddev;
-  private int _t;
-  private double _confidenceIntervalComponent;
+  private double mean;
+  private double stddev;
+  private int t;
+  private double confidenceIntervalComponent;
 
   /**
    * Constructor
@@ -27,7 +27,7 @@ public class PercolationStats {
               "T(iterations count) value must be greater 0, but received " + T);
     }
 
-    _t = T;
+    t = T;
     double[] thresholdValues = new double[T];
 
     for (int i = 0; i < T; i++) {
@@ -48,25 +48,25 @@ public class PercolationStats {
       thresholdValues[i] = ((double) totalOpened / (N * N));
     }
 
-    _mean = StdStats.mean(thresholdValues);
-    _stddev = StdStats.stddev(thresholdValues);
-    _confidenceIntervalComponent = 1.96 * _stddev / java.lang.Math.sqrt(_t);
+    mean = StdStats.mean(thresholdValues);
+    stddev = StdStats.stddev(thresholdValues);
+    confidenceIntervalComponent = 1.96 * stddev / java.lang.Math.sqrt(t);
   }
 
   /**
    * 95% confidence interval upper value
    * @return 
    */
-  public double upperConfidenceInterval() {
-    return _mean + _confidenceIntervalComponent;
+  private double upperConfidenceInterval() {
+    return mean + confidenceIntervalComponent;
   }
 
   /**
    * 95% confidence interval lower value
    * @return 
    */
-  public double lowerConfidenceInterval() {
-    return _mean - _confidenceIntervalComponent;
+  private double lowerConfidenceInterval() {
+    return mean - confidenceIntervalComponent;
   }
 
   /**
@@ -74,7 +74,7 @@ public class PercolationStats {
    * @return
    */
   public double mean() {
-    return _mean;
+    return mean;
   }
 
   /**
@@ -82,7 +82,7 @@ public class PercolationStats {
    * @return
    */
   public double stddev() {
-    return _stddev;
+    return stddev;
   }
 
   /**
@@ -94,11 +94,13 @@ public class PercolationStats {
     int N = 10;
     int T = 10;
     if (args.length >= 2) {
-      try {
         N = Integer.parseInt(args[0].trim());
-        T = Integer.parseInt(args[1].trim());
-      } catch (Throwable e) {
-      }
+        T = Integer.parseInt(args[1].trim());      
+    }
+    else 
+    {
+      System.out.println(String.format("Usage: java PercolationStats N(numeric) T(numeric)"));      
+      return;
     }
 
     System.out.println(String.format("N = %s, T = %s", N, T));
@@ -108,9 +110,9 @@ public class PercolationStats {
             "mean                    = %s", percolationStats.mean()));
     System.out.println(String.format(
             "stddev                  = %s", percolationStats.stddev()));
-    System.out.println(String.format(
-            "95%% confidence interval = %s, %s",
-            percolationStats.lowerConfidenceInterval(),
-            percolationStats.upperConfidenceInterval()));
+    // System.out.println(String.format(
+    //         "95%% confidence interval = %s, %s",
+    //         percolationStats.lowerConfidenceInterval(),
+    //         percolationStats.upperConfidenceInterval()));
   }
 }

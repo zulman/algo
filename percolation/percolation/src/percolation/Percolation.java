@@ -6,13 +6,14 @@
  */
 public class Percolation {
 
-  private boolean[] _sites;
-  private WeightedQuickUnionUF _union;
-  private int _size;
-  private int _unionSize;
+  private boolean[] sites;
+  private WeightedQuickUnionUF fullness;
+  private WeightedQuickUnionUF percolation;
+  private final int ROW_SIZE;
+  private final int GRAPH_SIZE;
+  private final int TOP_SITE_INDEX;
+  private final int BOTTOM_SITE_INDEX;
 
-//  private final int _topSite = 0;
-//  private final int _bottomSite;
   /**
    * Creates N-by-N grid, with all sites blocked
    * @param N
@@ -21,13 +22,14 @@ public class Percolation {
     /**
      * +2 for top/bottom virtual sites
      */
-//    _unionSize = N * N + 2;
-    _unionSize = N * N;
-    _union = new WeightedQuickUnionUF(_unionSize);
-    _sites = new boolean[N * N];
-    _size = N;
-//    _bottomSite = _unionSize - 1;
-//    connectVirtualSites();
+    GRAPH_SIZE = N * N + 2;
+//    unionSize = N * N;
+    percolation = new WeightedQuickUnionUF(GRAPH_SIZE);
+    sites = new boolean[N * N];
+    fullness = new WeightedQuickUnionUF(GRAPH_SIZE);
+    ROW_SIZE = N;
+    TOP_SITE_INDEX = GRAPH_SIZE - 2;
+    BOTTOM_SITE_INDEX = GRAPH_SIZE - 1;
   }
 
   /**
@@ -36,26 +38,11 @@ public class Percolation {
    * @param j column
    * @return  
    */
-  public final boolean isOpen(int i, int j) {
-    if (!checkIndexesAndAlert(i - 1, j - 1)) {
-      return false;
-    }
-    return _sites[getFlatIndex(i - 1, j - 1)];
+  public boolean isOpen(int i, int j) {
+    checkIndexes(i - 1, j - 1);
+    return sites[getFlatIndex(i - 1, j - 1)];
   }
 
-  /**
-   * Using for connect top and virtual sites with top and bottom row elements 
-   * respectively
-   * @param i 
-   * @param j
-   * @return  
-   */
-//  private void connectVirtualSites() {
-//    for (int i = 0; i < _size; i++) {
-//      _union.union(_topSite, i + 1);
-//      _union.union(_bottomSite, _unionSize - 2 - i);
-//    }
-//  }
   /**
    * Checks that site is full
    * @param i row
@@ -63,17 +50,11 @@ public class Percolation {
    * @return  
    */
   public boolean isFull(int i, int j) {
-    if (!checkIndexesAndAlert(i - 1, j - 1)) {
-      return false;
-    }
+    checkIndexes(i - 1, j - 1);
     int flatIndex = getFlatIndex(i - 1, j - 1);
 
-    if (getSiteStatus(flatIndex)) {
-      for (int k = 0; k < _size; k++) {
-        if (_union.connected(k, flatIndex)) {
-          return true;
-        }
-      }
+    if (isSiteOpen(flatIndex)) {
+      return fullness.connected(flatIndex, TOP_SITE_INDEX);
     }
 
     return false;
@@ -84,16 +65,7 @@ public class Percolation {
    * @return
    */
   public boolean percolates() {
-
-    for (int i = 0; i < _size; i++) {
-      for (int j = 0; j < _size; j++) {
-        if (_union.connected(i, _unionSize - 1 - j)) {
-          return true;
-        }
-      }
-    }
-    return false;
-//    return _union.connected(_topSite, _bottomSite);
+    return percolation.connected(TOP_SITE_INDEX, BOTTOM_SITE_INDEX);
   }
 
   /**
@@ -102,31 +74,39 @@ public class Percolation {
    * @param j column
    */
   public void open(int i, int j) {
-    if (!checkIndexesAndAlert(i - 1, j - 1)) {
-      return;
-    }
+    checkIndexes(i - 1, j - 1);
+//      return;
+//    }
     int flatIndex = getFlatIndex(i - 1, j - 1);
 
-    if (!_sites[flatIndex]) {
-      _sites[flatIndex] = true;
+    if (!sites[flatIndex]) {
+      sites[flatIndex] = true;
 
-      int fmod = flatIndex % _size;
+      if (flatIndex >= 0 && flatIndex < ROW_SIZE) {
+        tryToUnionInBothGraphs(flatIndex, TOP_SITE_INDEX);
+      }
+
+      if (flatIndex >= sites.length - ROW_SIZE && flatIndex < sites.length) {
+        percolation.union(BOTTOM_SITE_INDEX, flatIndex);
+      }
+
+      int fmod = flatIndex % ROW_SIZE;
 
       //left neighbor
-      if (fmod != 0 && getSiteStatus(flatIndex - 1)) {
-        tryToUnion(flatIndex, flatIndex - 1);
+      if (fmod != 0 && isSiteOpen(flatIndex - 1)) {
+        tryToUnionInBothGraphs(flatIndex, flatIndex - 1);
       }
       //right neighbor
-      if (fmod != _size - 1 && getSiteStatus(flatIndex + 1)) {
-        tryToUnion(flatIndex, flatIndex + 1);
+      if (fmod != ROW_SIZE - 1 && isSiteOpen(flatIndex + 1)) {
+        tryToUnionInBothGraphs(flatIndex, flatIndex + 1);
       }
       //top neighbor
-      if (getSiteStatus(flatIndex - _size)) {
-        tryToUnion(flatIndex, flatIndex - _size);
+      if (isSiteOpen(flatIndex - ROW_SIZE)) {
+        tryToUnionInBothGraphs(flatIndex, flatIndex - ROW_SIZE);
       }
       //bottom neighbor
-      if (getSiteStatus(flatIndex + _size)) {
-        tryToUnion(flatIndex, flatIndex + _size);
+      if (isSiteOpen(flatIndex + ROW_SIZE)) {
+        tryToUnionInBothGraphs(flatIndex, flatIndex + ROW_SIZE);
       }
     }
   }
@@ -134,9 +114,9 @@ public class Percolation {
   /**
    * Get site status or false if index out of array bounds
    */
-  private boolean getSiteStatus(int index) {
-    if (index >= 0 && index < _sites.length) {
-      return _sites[index];
+  private boolean isSiteOpen(int index) {
+    if (index >= 0 && index < sites.length) {
+      return sites[index];
     }
     return false;
   }
@@ -144,23 +124,22 @@ public class Percolation {
   /**
    * Performs union of elements if their indexes are in bounds
    */
-  private boolean tryToUnion(int p, int q) {
-    if (p >= _unionSize || q >= _unionSize || p < 0 || q < 0) {
+  private boolean tryToUnionInBothGraphs(int p, int q) {
+    if (p >= GRAPH_SIZE || q >= GRAPH_SIZE || p < 0 || q < 0) {
       return false;
     }
-
-    _union.union(p, q);
+    fullness.union(p, q);
+    percolation.union(p, q);
     return true;
   }
 
   /*
-   * Checks that indexes represent item inside array _sizex_size
+   * Checks that indexes represent item inside array SizexSize
    */
-  private boolean checkIndexesAndAlert(int i, int j) {
-    if (i >= _size || j >= _size) {
-      return false;
+  private void checkIndexes(int i, int j) {
+    if (i >= ROW_SIZE || j >= ROW_SIZE || i < 0 || j < 0) {
+      throw new IndexOutOfBoundsException(String.format("Maximum index must be [%s;%s] but trying to get [%s;%s]", ROW_SIZE, ROW_SIZE, i, j));
     }
-    return true;
   }
 
   /*
@@ -169,6 +148,6 @@ public class Percolation {
    * @param j column
    */
   private int getFlatIndex(int i, int j) {
-    return i * _size + j;
+    return i * ROW_SIZE + j;
   }
 }
