@@ -120,19 +120,6 @@ public class PercolationTest {
     assertEquals(p.percolates(), true);
   }
 
-//  @Test
-//  public void Order_test() {
-//    WeightedQuickUnionUF union = new WeightedQuickUnionUF(10);
-
-//    System.out.println(union.find(3));
-//    union.union(0, 3);
-//    union.union(0, 2);
-
-//    System.out.println(union.find(3));
-
-//    assertEquals(union.connected(2, 3), false);
-//  }
-
   @Test
   public void Union_must_not_be_percolated_if_one_element_in_column_is_closed() {
     for (int i = 1; i < N; i++) {
