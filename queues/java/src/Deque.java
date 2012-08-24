@@ -131,6 +131,7 @@ public class Deque<Item> implements Iterable<Item> {
    *
    * @return an iterator over items in order from front to end
    */
+  @Override
   public Iterator<Item> iterator() {
     checkForEmptyDeque();
     return new DequeIterator(first);
@@ -144,16 +145,19 @@ public class Deque<Item> implements Iterable<Item> {
       current = first;
     }
 
+    @Override
     public boolean hasNext() {
       return (current != null);
     }
 
+    @Override
     public Item next() {
       Item result = current.item;
       current = current.next;
       return result;
     }
 
+    @Override
     public void remove() {
       throw new java.lang.UnsupportedOperationException();
     }
