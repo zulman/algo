@@ -106,6 +106,9 @@ public class Deque<Item> implements Iterable<Item> {
       first.next.prev = null;
     }
     first = first.next;
+    oldFirst.prev = null;
+    oldFirst.next = null;
+    oldFirst.item = null;
     oldFirst = null;
     size--;
     return item;
@@ -119,11 +122,15 @@ public class Deque<Item> implements Iterable<Item> {
     checkForEmptyDeque();
 
     Item item = last.item;
+    Node oldLast = last;
     if (last.prev != null) {
       last.prev.next = null;
     }
     last = last.prev;
-
+    oldLast.next = null;
+    oldLast.prev = null;
+    oldLast.item = null;
+    oldLast = null;
     size--;
     return item;
   }
@@ -136,6 +143,19 @@ public class Deque<Item> implements Iterable<Item> {
   public Iterator<Item> iterator() {
     checkForEmptyDeque();
     return new DequeIterator(first);
+  }
+
+  public static void main(final String[] args) {
+    Deque<String> s = new Deque<String>();
+
+    for (int i = 0; i < 10000; i++) {
+      s.addFirst("item");
+    }
+
+    for (int i = 0; i < 10000; i++) {
+      s.removeLast();
+    }
+
   }
 
   private class DequeIterator implements Iterator<Item> {
