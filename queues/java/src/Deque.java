@@ -101,11 +101,12 @@ public class Deque<Item> implements Iterable<Item> {
     checkForEmptyDeque();
 
     Item item = first.item;
+    Node oldFirst = first;
     if (first.next != null) {
       first.next.prev = null;
     }
     first = first.next;
-
+    oldFirst = null;
     size--;
     return item;
   }
@@ -152,13 +153,21 @@ public class Deque<Item> implements Iterable<Item> {
 
     @Override
     public Item next() {
+      checkNextExisting();
       Item result = current.item;
       current = current.next;
       return result;
     }
 
+    private void checkNextExisting() {
+      if (!hasNext()) {
+        throw new java.util.NoSuchElementException();
+      }
+    }
+
     @Override
     public void remove() {
+      checkNextExisting();
       throw new java.lang.UnsupportedOperationException();
     }
   }
