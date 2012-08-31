@@ -3,10 +3,7 @@
  * and open the template in the editor.
  */
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -15,19 +12,7 @@ import static org.junit.Assert.*;
  * @author oleg.chumakov
  */
 public class DequeTests {
-
   Deque<String> deque = null;
-
-  public DequeTests() {
-  }
-
-  @BeforeClass
-  public static void setUpClass() {
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-  }
 
   @Before
   public void setUp() {
@@ -36,10 +21,6 @@ public class DequeTests {
     deque.addFirst("second");
     deque.addFirst("first");
     deque.addLast("last");
-  }
-
-  @After
-  public void tearDown() {
   }
 
   @Test

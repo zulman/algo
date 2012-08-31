@@ -3,10 +3,7 @@
  * and open the template in the editor.
  */
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,18 +13,8 @@ import static org.junit.Assert.*;
  */
 public class RandomizedQueueTest {
 
-  public RandomizedQueueTest() {
-  }
   private RandomizedQueue<Integer> queue;
   private int size = 4;
-
-  @BeforeClass
-  public static void setUpClass() {
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-  }
 
   @Before
   public void setUp() {
@@ -36,10 +23,6 @@ public class RandomizedQueueTest {
       queue.enqueue(i);
     }
 
-  }
-
-  @After
-  public void tearDown() {
   }
 
   @Test

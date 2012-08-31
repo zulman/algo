@@ -1,9 +1,6 @@
 /* 12:17:55 PM Aug 16, 2012 */
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,24 +13,9 @@ public class PercolationTest {
   private Percolation percolation;
   private final int N = 10;
 
-  public PercolationTest() {
-  }
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void tearDownClass() throws Exception {
-  }
-
   @Before
   public void setUp() {
     percolation = new Percolation(N);
-  }
-
-  @After
-  public void tearDown() {
   }
 
   @Test
