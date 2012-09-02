@@ -9,16 +9,18 @@
  */
 import java.util.Comparator;
 
-public class Brute {
+public class Fast {
 
+  private final int MIN_LINE_LENGTH = 3;
   private Point[][] alreadyPrinted;
+  private Point[] alreadyPrinted2;
   private int totalPrinted = 0;
   private Comparator currentComparer = null;
+  private Comparable currentSearchingItem = null;
+  private int foundedIndex = -1;
 
   private void merge(Comparable[] a, Comparable[] aux, int lo, int mid, int hi) {
-    for (int k = lo; k <= hi; k++) {
-      aux[k] = a[k];
-    }
+    System.arraycopy(a, 0, aux, 0, a.length);
     int i = lo, j = mid + 1;
     for (int k = lo; k <= hi; k++) {
       if (i > mid) {
@@ -29,6 +31,10 @@ public class Brute {
         a[k] = aux[j++];
       } else {
         a[k] = aux[i++];
+      }
+
+      if (a[k] == currentSearchingItem) {
+        foundedIndex = k;
       }
     }
   }
@@ -69,20 +75,27 @@ public class Brute {
   }
 
   private boolean isAlreadyPrinted(Point[] arr) {
-
     for (int i = 0; i < totalPrinted; i++) {
 
       int sameElements = 0;
-      for (int j = 0; j < arr.length; j++) {
+      for (int j = 0; j < 2; j++) {
         if (arr[j] == alreadyPrinted[i][j]) {
           sameElements++;
         }
       }
-      if (sameElements == arr.length) {
+      if (sameElements == 2) {
         return true;
       }
     }
     return false;
+  }
+
+  private String pointSlopesToString(Point[] points, Point point) {
+    String result = "";
+    for (int i = 0; i < points.length; i++) {
+      result += point.slopeTo(points[i]) + " ";
+    }
+    return result;
   }
 
   private void savePrinted(Point[] arr) {
@@ -99,47 +112,59 @@ public class Brute {
 
   private void detect(Point[] points) {
     int N = points.length;
+    if (N < MIN_LINE_LENGTH) {
+      return;
+    }
     alreadyPrinted = new Point[N * N][];
-
-    sort(points);
     StdDraw.setXscale(0, 32768);
     StdDraw.setYscale(0, 32768);
+    Point[] tempPoints = new Point[N];
+    System.arraycopy(points, 0, tempPoints, 0, points.length);
+
     for (int i1 = 0; i1 < points.length; i1++) {
-      for (int i2 = 0; i2 < points.length; i2++) {
-        if (i1 == i2) {
-          continue;
+      Point p = points[i1];
+      currentComparer = p.SLOPE_ORDER;
+      currentSearchingItem = p;
+      sort(tempPoints);
+      int newIndex = i1;
+      if (foundedIndex != -1) {
+        newIndex = foundedIndex;
+      }
+      exch(tempPoints, 0, newIndex);
+
+      int indexStarted = 1;
+      int indexEnded = 1;
+      boolean seqBreaked;
+      double slope = p.slopeTo(tempPoints[indexStarted]);
+      for (int i2 = 2; i2 < tempPoints.length; i2++) {
+        seqBreaked = false;
+        if (p.slopeTo(tempPoints[i2]) == slope) {
+          indexEnded++;
+        } else {
+          seqBreaked = true;
         }
-        double firstSlope = points[i1].slopeTo(points[i2]);
+        if (i2 == tempPoints.length - 1) {
+          seqBreaked = true;
+        }
+        int length = indexEnded - indexStarted + 1;
+        if (seqBreaked && length >= MIN_LINE_LENGTH) {
+          Point[] line = new Point[length + 1];
+          System.arraycopy(tempPoints, indexStarted, line, 0, length);
 
-        for (int i3 = 0; i3 < points.length; i3++) {
-          if (i1 == i3 || i2 == i3) {
-            continue;
+          line[line.length - 1] = p;
+          currentComparer = null;
+          sort(line);
+
+          if (!isAlreadyPrinted(line)) {
+            savePrinted(line);
+            System.out.println(pointsToString(line));
+            line[0].drawTo(line[line.length - 1]);
           }
-          if (firstSlope == points[i1].slopeTo(points[i3])) {
-
-            for (int i4 = 0; i4 < points.length; i4++) {
-              if (i1 == i4 || i2 == i4 || i3 == i4) {
-                continue;
-              }
-              if (firstSlope == points[i1].slopeTo(points[i4])) {
-                //Founded
-                Point[] arr = new Point[4];
-                arr[0] = points[i1];
-                arr[1] = points[i2];
-                arr[2] = points[i3];
-                arr[3] = points[i4];
-                sort(arr);
-
-                if (isAlreadyPrinted(arr)) {
-                  continue;
-                }
-                points[i1].drawTo(points[i4]);
-                savePrinted(arr);
-                System.out.println(pointsToString(arr));
-              }
-            }
-          }
-
+        }
+        if (seqBreaked) {
+          indexStarted = i2;
+          indexEnded = indexStarted;
+          slope = p.slopeTo(tempPoints[indexStarted]);
         }
       }
     }
@@ -157,7 +182,9 @@ public class Brute {
       points[i] = new Point(x, y);
       i++;
     }
-    Brute b = new Brute();
-    b.detect(points);
+
+    Fast f = new Fast();
+    f.detect(points);
+
   }
 }

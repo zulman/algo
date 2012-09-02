@@ -5,6 +5,39 @@
  */
 public class StandartSortMethods {
 
+  private static void mergeSort(Comparable[] a) {
+    int N = a.length;
+    Comparable[] aux = new Comparable[N];
+    System.arraycopy(a, 0, aux, 0, a.length);
+    mergeSort(a, aux, 0, N - 1);
+  }
+
+  private static void mergeSort(Comparable[] a, Comparable[] aux, int lo, int hi) {
+    if (hi <= lo) {
+      return;
+    }
+    int mid = lo + (hi - lo) / 2;
+    mergeSort(aux, a, lo, mid);
+    mergeSort(aux, a, mid + 1, hi);
+    if (!less(a[mid+1], a[mid])) return;
+    merge(aux, a, lo, mid, hi);
+  }
+
+  private static void merge(Comparable[] a, Comparable[] aux, int lo, int mid, int hi) {
+    int i = lo, j = mid + 1;
+    for (int k = lo; k <= hi; k++) {
+      if (i > mid) {
+        aux[k] = a[j++];
+      } else if (j > hi) {
+        aux[k] = a[i++];
+      } else if (less(a[j], a[i])) {
+        aux[k] = a[j++];
+      } else {
+        aux[k] = a[i++];
+      }
+    }
+  }
+
   public static void selectionSort(Comparable[] a) {
     int N = a.length;
     for (int i = 0; i < N; i++) {
@@ -69,9 +102,14 @@ public class StandartSortMethods {
     a[i] = a[j];
     a[j] = swap;
   }
-//  public static void main(final String[] args) {
+
+  public static void main(final String[] args) {
 //    Character[] e = {'S', 'C', 'Q', 'A', 'D', 'I', 'J', 'M', 'B', 'H'};
 //    Character[] e = {'K', 'N', 'V', 'W', 'Y', 'X', 'L', 'S', 'T', 'A'};
 //    Character[] e = {'I', 'S', 'D', 'T', 'N', 'M', 'O', 'J', 'B', 'F'};
-//  }
+//    Character[] e = {'Y', 'X', 'Z', 'A', 'G', 'F', 'E', 'D', 'C', 'B'};
+//    printArray(e);
+//    mergeSort(e);
+//    printArray(e);
+  }
 }
