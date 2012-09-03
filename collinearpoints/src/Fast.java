@@ -7,117 +7,14 @@
  *
  * @author oleg.chumakov
  */
-import java.util.Comparator;
 import java.util.Arrays;
 
 public class Fast {
 
   private final int MIN_LINE_LENGTH = 3;
   private Point[][] alreadyPrinted;
-  private Point[] alreadyPrinted2;
   private int totalPrinted = 0;
-  private Comparator currentComparer = null;
-  private Comparable currentSearchingItem = null;
-  private int foundedIndex = -1;
-  private Comparable[] aux;
 
-//  private void merge(Comparable[] a, int lo, int mid, int hi) {
-//    System.arraycopy(a, 0, aux, 0, a.length);
-//    int i = lo, j = mid + 1;
-//    for (int k = lo; k <= hi; k++) {
-//      if (i > mid) {
-//        a[k] = aux[j++];
-//      } else if (j > hi) {
-//        a[k] = aux[i++];
-//      } else if (less(aux[j], aux[i])) {
-//        a[k] = aux[j++];
-//      } else {
-//        a[k] = aux[i++];
-//      }
-//      
-//      if (a[k] == currentSearchingItem) {
-//        foundedIndex = k;
-//      }
-//    }
-//  }
-//  
-//  private void msort(Comparable[] a) {
-//    int N = a.length;
-//    aux = new Comparable[N];
-//    for (int sz = 1; sz < N; sz = sz + sz) {
-//      for (int lo = 0; lo < N - sz; lo += sz + sz) {
-//        merge(a, lo, lo + sz - 1, Math.min(lo + sz + sz - 1, N - 1));
-//      }
-//    }
-//  }
-//  private int partition(Comparable[] a, int lo, int hi) {
-//    int i = lo, j = hi + 1;
-//    while (true) {
-//      while (less(a[++i], a[lo])) {
-//        if (i == hi) {
-//          break;
-//        }
-//      }
-//      while (less(a[lo], a[--j])) {
-//        if (j == lo) {
-//          break;
-//        }
-//      }
-//
-//      if (i >= j) {
-//        break;
-//      }
-//      exch(a, i, j);
-//    }
-//    exch(a, lo, j);
-//    return j;
-//  }
-//
-//  private void sort(Comparable[] a) {
-//    StdRandom.shuffle(a);
-//    sort(a, 0, a.length - 1);
-//  }
-//
-//  private void sort(Comparable[] a, int lo, int hi) {
-//
-//    if (hi <= lo) {
-//      return;
-//    }
-//    int lt = lo, gt = hi;
-//    Comparable v = a[lo];
-//    int i = lo;
-//    while (i <= gt) {
-//      int cmp;
-//      if (currentComparer != null) {
-//        cmp = currentComparer.compare(a[i], v);
-//      } else {
-//        cmp = a[i].compareTo(v);
-//      }
-//      if (cmp < 0) {
-//        exch(a, lt++, i++);
-//      } else if (cmp > 0) {
-//        exch(a, i, gt--);
-//      } else {
-//        i++;
-//      }
-//    }
-//    sort(a, lo, lt - 1);
-//    sort(a, gt + 1, hi);
-//
-////    if (hi <= lo) {
-////      return;
-////    }
-////    int j = partition(a, lo, hi);
-////    sort(a, lo, j - 1);
-////    sort(a, j + 1, hi);
-//  }
-//
-//  private boolean less(Comparable v, Comparable w) {
-//    if (currentComparer != null) {
-//      return currentComparer.compare(v, w) < 0;
-//    }
-//    return v.compareTo(w) < 0;
-//  }
   private void exch(Comparable[] a, int i, int j) {
     Comparable swap = a[i];
     a[i] = a[j];
@@ -154,14 +51,6 @@ public class Fast {
       if (alreadyPrinted[i][0] == p1 && alreadyPrinted[i][1] == p2) {
         return true;
       }
-//      for (int j = 0; j < 2; j++) {
-//        if (arr[j] == alreadyPrinted[i][j]) {
-//          sameElements++;
-//        }
-//      }
-//      if (sameElements == 2) {
-//        return true;
-//      }
     }
     return false;
   }
@@ -203,67 +92,47 @@ public class Fast {
     alreadyPrinted = new Point[N * N][];
     StdDraw.setXscale(0, 32768);
     StdDraw.setYscale(0, 32768);
-    Point[] tempPoints = new Point[N];
-    System.arraycopy(points, 0, tempPoints, 0, points.length);
-    Arrays.sort(tempPoints);
-    for (int i1 = 0; i1 < points.length; i1++) {
 
-      Point p = points[i1];
-      Arrays.sort(tempPoints, p.SLOPE_ORDER);
+    for (int pIndex = 0; pIndex < points.length - 1; pIndex++) {
 
-      int indexStarted = 0;
-      int indexEnded = 0;
+      Point p = points[pIndex];
+      Arrays.sort(points, pIndex + 1, points.length, p.SLOPE_ORDER);
+
+      int indexStarted = pIndex + 1;
+      int indexEnded = pIndex + 1;
       boolean seqBreaked;
-      boolean containsP = false;
-      int pIndex = 0;
-      double slope = p.slopeTo(tempPoints[indexStarted]);
-      for (int i2 = 1; i2 < tempPoints.length; i2++) {
+      double slope = p.slopeTo(points[indexStarted]);
+      for (int i2 = pIndex + 2; i2 < points.length; i2++) {
 
         seqBreaked = false;
-        if (tempPoints[i2] == p || p.slopeTo(tempPoints[i2]) == slope) {
-          if (tempPoints[i2] == p) {
-            pIndex = i2;
-          }
+        if (p.slopeTo(points[i2]) == slope) {
+
           indexEnded++;
 
         } else {
           seqBreaked = true;
         }
-        if (i2 == tempPoints.length - 1) {
+        if (i2 == points.length - 1) {
           seqBreaked = true;
         }
         int length = indexEnded - indexStarted + 1;
         if (seqBreaked && length >= MIN_LINE_LENGTH) {
 
-//          int pIndexN = pIndex;
-//          if (pIndex >= indexStarted && pIndex <= indexEnded) {
-//          } else {
-//
-//            if (indexEnded + 1 < tempPoints.length) {
-//              indexEnded++;
-//              exch(tempPoints, indexEnded, pIndex);
-//            } else {
-//              indexStarted--;
-//              exch(tempPoints, indexStarted, pIndex);
-//            }
-//          }
-//          Arrays.sort(tempPoints, indexStarted, indexEnded + 1);
-//          for (int idx = indexStarted; idx <= indexEnded; idx++) {
-//            if (tempPoints[idx] == p) {
-//              pIndexN = idx;
-//            }
-//          }
-          if (!isAlreadyPrinted(tempPoints[indexStarted], tempPoints[indexStarted + 1])) {
-            savePrinted(tempPoints[indexStarted], tempPoints[indexStarted + 1]);
-            System.out.println(pointsToString(tempPoints, indexStarted, indexEnded));
-            tempPoints[indexStarted].drawTo(tempPoints[indexEnded]);
+          Point[] line = new Point[length + 1];
+          System.arraycopy(points, indexStarted, line, 0, length);
+          line[line.length - 1] = p;
+
+          Arrays.sort(line);
+          if (!isAlreadyPrinted(line[0], line[1])) {
+            savePrinted(line[0], line[1]);
+            System.out.println(pointsToString(line));
+            line[0].drawTo(line[line.length - 1]);
           }
-//          exch(tempPoints, pIndexN, pIndex);
         }
         if (seqBreaked) {
           indexStarted = i2;
           indexEnded = indexStarted;
-          slope = p.slopeTo(tempPoints[indexStarted]);
+          slope = p.slopeTo(points[indexStarted]);
         }
       }
     }
