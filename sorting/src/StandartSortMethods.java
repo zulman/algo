@@ -19,7 +19,9 @@ public class StandartSortMethods {
     int mid = lo + (hi - lo) / 2;
     mergeSort(aux, a, lo, mid);
     mergeSort(aux, a, mid + 1, hi);
-    if (!less(a[mid+1], a[mid])) return;
+    if (!less(a[mid + 1], a[mid])) {
+      return;
+    }
     merge(aux, a, lo, mid, hi);
   }
 
@@ -60,7 +62,6 @@ public class StandartSortMethods {
       for (int j = i; j > 0; j--) {
         if (less(a[j], a[j - 1])) {
           exch(a, j, j - 1);
-          printArray(a);
         } else {
           break;
         }
@@ -108,8 +109,9 @@ public class StandartSortMethods {
 //    Character[] e = {'K', 'N', 'V', 'W', 'Y', 'X', 'L', 'S', 'T', 'A'};
 //    Character[] e = {'I', 'S', 'D', 'T', 'N', 'M', 'O', 'J', 'B', 'F'};
 //    Character[] e = {'Y', 'X', 'Z', 'A', 'G', 'F', 'E', 'D', 'C', 'B'};
-//    printArray(e);
-//    mergeSort(e);
-//    printArray(e);
+    Double[] ea = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.NEGATIVE_INFINITY, 0.2432736688055837};
+    printArray(ea);
+    insertionSort(ea);
+    printArray(ea);
   }
 }
