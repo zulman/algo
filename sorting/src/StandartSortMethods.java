@@ -109,9 +109,19 @@ public class StandartSortMethods {
 //    Character[] e = {'K', 'N', 'V', 'W', 'Y', 'X', 'L', 'S', 'T', 'A'};
 //    Character[] e = {'I', 'S', 'D', 'T', 'N', 'M', 'O', 'J', 'B', 'F'};
 //    Character[] e = {'Y', 'X', 'Z', 'A', 'G', 'F', 'E', 'D', 'C', 'B'};
-    Double[] ea = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.NEGATIVE_INFINITY, 0.2432736688055837};
-    printArray(ea);
-    insertionSort(ea);
-    printArray(ea);
+//    Double[] ea = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.NEGATIVE_INFINITY, 0.2432736688055837};
+//    printArray(ea);
+//    insertionSort(ea);
+//    printArray(ea);
+
+    Integer[] e = {1, 2, 3, 4, 5, 6, 7, 8, 0};
+    int length = e.length;
+    int insertIndex = 3;
+    printArray(e);
+    System.arraycopy(e, insertIndex - 1, e,
+            insertIndex,
+            length - insertIndex);
+    e[insertIndex] = -1;
+    printArray(e);
   }
 }
