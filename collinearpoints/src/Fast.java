@@ -99,7 +99,8 @@ public class Fast {
 
           boolean alreadyPrinted = false;
           for (int j = 0; j < pIndex; j++) {
-            if (points[indexStarted].slopeTo(points[j]) == points[indexStarted + 1].slopeTo(points[j])) {
+            if (points[indexStarted].slopeTo(points[j])
+                    == points[indexStarted + 1].slopeTo(points[j])) {
               alreadyPrinted = true;
               break;
             }
@@ -139,6 +140,5 @@ public class Fast {
 
     Fast f = new Fast();
     f.detect(points);
-
   }
 }

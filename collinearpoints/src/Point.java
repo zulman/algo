@@ -24,10 +24,11 @@ public class Point implements Comparable<Point> {
       if (p1 == p2 && p1 != null && p2 != null) {
         return 0;
       }
-      double sld = point.slopeTo(p1) - point.slopeTo(p2);
-      if (sld > 0) {
+      double sl1 = point.slopeTo(p1);
+      double sl2 = point.slopeTo(p2);
+      if (sl1 > sl2) {
         return 1;
-      } else if (sld < 0) {
+      } else if (sl1 < sl2) {
         return -1;
       }
 
