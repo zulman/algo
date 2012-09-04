@@ -3,6 +3,9 @@
  *
  * @author oleg.chumakov
  */
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
+
 public class StandartSortMethods {
 
   private static void mergeSort(Comparable[] a) {
@@ -113,15 +116,39 @@ public class StandartSortMethods {
 //    printArray(ea);
 //    insertionSort(ea);
 //    printArray(ea);
+//
+//    Integer[] e = {1, 2, 3, 4, 5, 6, 7, 8, 0};
+//    int length = e.length;
+//    int insertIndex = 3;
+//    printArray(e);
+//    System.arraycopy(e, insertIndex - 1, e,
+//            insertIndex,
+//            length - insertIndex);
+//    e[insertIndex] = -1;
+//    printArray(e);
 
-    Integer[] e = {1, 2, 3, 4, 5, 6, 7, 8, 0};
-    int length = e.length;
-    int insertIndex = 3;
-    printArray(e);
-    System.arraycopy(e, insertIndex - 1, e,
-            insertIndex,
-            length - insertIndex);
-    e[insertIndex] = -1;
-    printArray(e);
+    String str = "246";
+
+    //Convert string to bytes
+    byte bytes[] = str.getBytes();
+
+    Checksum checksum = new CRC32();
+
+    /*
+     * To compute the CRC32 checksum for byte array, use
+     *
+     * void update(bytes[] b, int start, int length)
+     * method of CRC32 class.
+     */
+
+    checksum.update(bytes, 0, bytes.length);
+
+    /*
+     * Get the generated checksum using
+     * getValue method of CRC32 class.
+     */
+    long lngChecksum = checksum.getValue();
+
+    System.out.println("CRC32 checksum for byte array is :" + lngChecksum);
   }
 }

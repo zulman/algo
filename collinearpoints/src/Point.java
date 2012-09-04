@@ -21,14 +21,15 @@ public class Point implements Comparable<Point> {
 
     @Override
     public int compare(Point p1, Point p2) {
+      if (p1 == p2 && p1 != null && p2 != null) {
+        return 0;
+      }
       double sld = point.slopeTo(p1) - point.slopeTo(p2);
       if (sld > 0) {
         return 1;
-      } else if (sld
-              < 0) {
+      } else if (sld < 0) {
         return -1;
       }
-
 
       return 0;
     }
@@ -71,13 +72,16 @@ public class Point implements Comparable<Point> {
     if (that.x == x) {
       return Double.POSITIVE_INFINITY;
     }
-    return (double) (that.y - y) / (double) (that.x - x);
+    return (double) (that.y - y) / (that.x - x);
   }
 
   // is this point lexicographically smaller than that one?
   // comparing y-coordinates and breaking ties by x-coordinates
   @Override
   public int compareTo(Point that) {
+    if (this == that) {
+      return 0;
+    }
     int yd = y - that.y;
     if (yd != 0) {
       return yd;

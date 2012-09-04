@@ -12,8 +12,7 @@ import java.util.Arrays;
 public class Fast {
 
   private final int MIN_LINE_LENGTH = 3;
-  private Point[][] alreadyPrinted;
-  private int totalPrinted = 0;
+  private double sum = 0;
 
   private void exch(Comparable[] a, int i, int j) {
     Comparable swap = a[i];
@@ -45,16 +44,6 @@ public class Fast {
     return result;
   }
 
-  private boolean isAlreadyPrinted(Point p1, Point p2) {
-    for (int i = 0; i < totalPrinted; i++) {
-
-      if (alreadyPrinted[i][0] == p1 && alreadyPrinted[i][1] == p2) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private String pointSlopesToString(Point[] points, Point point) {
     String result = "";
     for (int i = 0; i < points.length; i++) {
@@ -69,19 +58,11 @@ public class Fast {
     return result;
   }
 
-  private void savePrinted(Point p1, Point p2) {
-    if (alreadyPrinted.length <= totalPrinted) {
-      Point[][] temp = new Point[alreadyPrinted.length * 2][];
-      for (int i = 0; i < alreadyPrinted.length; i++) {
-        temp[i] = alreadyPrinted[i];
-      }
-      alreadyPrinted = temp;
+  private static void printArray(double[] a) {
+    for (int i = 0; i < a.length; i++) {
+      System.out.print(a[i] + " ");
     }
-
-    alreadyPrinted[totalPrinted] = new Point[2];
-    alreadyPrinted[totalPrinted][0] = p1;
-    alreadyPrinted[totalPrinted][1] = p2;
-    totalPrinted++;
+    System.out.println();
   }
 
   private void detect(Point[] points) {
@@ -89,13 +70,12 @@ public class Fast {
     if (N < MIN_LINE_LENGTH) {
       return;
     }
-    alreadyPrinted = new Point[N * N][];
     StdDraw.setXscale(0, 32768);
     StdDraw.setYscale(0, 32768);
 
     for (int pIndex = 0; pIndex < points.length - 1; pIndex++) {
-
       Point p = points[pIndex];
+
       Arrays.sort(points, pIndex + 1, points.length, p.SLOPE_ORDER);
 
       int indexStarted = pIndex + 1;
@@ -103,28 +83,33 @@ public class Fast {
       boolean seqBreaked;
       double slope = p.slopeTo(points[indexStarted]);
       for (int i2 = pIndex + 2; i2 < points.length; i2++) {
-
         seqBreaked = false;
-        if (p.slopeTo(points[i2]) == slope) {
-
+        double cSlope = p.slopeTo(points[i2]);
+        if (cSlope == slope) {
           indexEnded++;
-
         } else {
           seqBreaked = true;
         }
         if (i2 == points.length - 1) {
           seqBreaked = true;
         }
+
         int length = indexEnded - indexStarted + 1;
         if (seqBreaked && length >= MIN_LINE_LENGTH) {
 
-          Point[] line = new Point[length + 1];
-          System.arraycopy(points, indexStarted, line, 0, length);
-          line[line.length - 1] = p;
+          boolean alreadyPrinted = false;
+          for (int j = 0; j < pIndex; j++) {
+            if (points[indexStarted].slopeTo(points[j]) == points[indexStarted + 1].slopeTo(points[j])) {
+              alreadyPrinted = true;
+              break;
+            }
+          }
 
-          Arrays.sort(line);
-          if (!isAlreadyPrinted(line[0], line[1])) {
-            savePrinted(line[0], line[1]);
+          if (!alreadyPrinted) {
+            Point[] line = new Point[length + 1];
+            System.arraycopy(points, indexStarted, line, 0, length);
+            line[line.length - 1] = p;
+            Arrays.sort(line);
             System.out.println(pointsToString(line));
             line[0].drawTo(line[line.length - 1]);
           }
@@ -132,7 +117,8 @@ public class Fast {
         if (seqBreaked) {
           indexStarted = i2;
           indexEnded = indexStarted;
-          slope = p.slopeTo(points[indexStarted]);
+          slope = cSlope;
+
         }
       }
     }
