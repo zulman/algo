@@ -35,32 +35,56 @@ public class Point implements Comparable<Point> {
       return 0;
     }
   }
-  // compare points by slope
+  /**
+   * compare points by slope
+   */
   public final Comparator<Point> SLOPE_ORDER =
           new PointSlopeComparator(this);
-  private final int x;                              // x coordinate
-  private final int y;                              // y coordinate
+  /**
+   * x coordinate
+   */
+  private final int x;
+  /**
+   * y coordinate
+   */
+  private final int y;
 
-  // create the point (x, y)
+  /**
+   * create the point
+   *
+   * @param x
+   * @param y
+   */
   public Point(int x, int y) {
     /* DO NOT MODIFY */
     this.x = x;
     this.y = y;
   }
 
-  // plot this point to standard drawing
+  /**
+   * plot this point to standard drawing
+   */
   public void draw() {
     /* DO NOT MODIFY */
     StdDraw.point(x, y);
   }
 
-  // draw line between this point and that point to standard drawing
+  /**
+   * draw line between this point and that point to standard drawing
+   *
+   * @param that
+   */
   public void drawTo(Point that) {
     /* DO NOT MODIFY */
     StdDraw.line(this.x, this.y, that.x, that.y);
   }
 
-  // slope between this point and that point
+  /**
+   * slope between this point and that point
+   *
+   * @param that
+   * @return
+   */
   public double slopeTo(Point that) {
     if (compareTo(that) == 0) {
       return Double.NEGATIVE_INFINITY;
@@ -76,8 +100,13 @@ public class Point implements Comparable<Point> {
     return (double) (that.y - y) / (that.x - x);
   }
 
-  // is this point lexicographically smaller than that one?
-  // comparing y-coordinates and breaking ties by x-coordinates
+  /**
+   * is this point lexicographically smaller than that one? comparing
+   * y-coordinates and breaking ties by x-coordinates
+   *
+   * @param that
+   * @return
+   */
   @Override
   public int compareTo(Point that) {
     if (this == that) {
@@ -90,7 +119,11 @@ public class Point implements Comparable<Point> {
     return x - that.x;
   }
 
-  // return string representation of this point
+  /**
+   * return string representation of this point
+   *
+   * @return
+   */
   @Override
   public String toString() {
     /* DO NOT MODIFY */
