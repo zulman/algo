@@ -11,6 +11,7 @@
                 <root id="src.src.dir"/>
             </source-roots>
             <test-roots>
+                <root id="test.test4.dir"/>
                 <root id="test.test3.dir"/>
                 <root id="test.test2.dir"/>
                 <root id="test.test.dir"/>

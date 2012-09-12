@@ -135,6 +135,7 @@ is divided into following sections:
         </condition>
         <condition property="have.tests">
             <or>
+                <available file="${test.test4.dir}"/>
                 <available file="${test.test3.dir}"/>
                 <available file="${test.test2.dir}"/>
                 <available file="${test.test.dir}"/>
@@ -237,6 +238,7 @@ is divided into following sections:
         <fail unless="src.src4.dir">Must set src.src4.dir</fail>
         <fail unless="src.src2.dir">Must set src.src2.dir</fail>
         <fail unless="src.src.dir">Must set src.src.dir</fail>
+        <fail unless="test.test4.dir">Must set test.test4.dir</fail>
         <fail unless="test.test3.dir">Must set test.test3.dir</fail>
         <fail unless="test.test2.dir">Must set test.test2.dir</fail>
         <fail unless="test.test.dir">Must set test.test.dir</fail>
@@ -414,6 +416,9 @@ is divided into following sections:
                 <property name="junit.forkmode" value="perTest"/>
                 <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" forkmode="${junit.forkmode}" showoutput="true" tempdir="${build.dir}">
                     <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${test.test4.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
                         <fileset dir="${test.test3.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
                             <filename name="@{testincludes}"/>
                         </fileset>
@@ -449,6 +454,9 @@ is divided into following sections:
                     <isset property="test.method"/>
                 </condition>
                 <union id="test.set">
+                    <fileset dir="${test.test4.dir}" excludes="@{excludes},**/*.xml,${excludes}" includes="@{includes}">
+                        <filename name="@{testincludes}"/>
+                    </fileset>
                     <fileset dir="${test.test3.dir}" excludes="@{excludes},**/*.xml,${excludes}" includes="@{includes}">
                         <filename name="@{testincludes}"/>
                     </fileset>
@@ -567,6 +575,9 @@ is divided into following sections:
                 <property name="junit.forkmode" value="perTest"/>
                 <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" forkmode="${junit.forkmode}" showoutput="true" tempdir="${build.dir}">
                     <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${test.test4.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
                         <fileset dir="${test.test3.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
                             <filename name="@{testincludes}"/>
                         </fileset>
@@ -1280,11 +1291,12 @@ is divided into following sections:
         <!-- You can override this target in the ../build.xml file. -->
     </target>
     <target if="do.depend.true" name="-compile-test-depend">
-        <j2seproject3:depend classpath="${javac.test.classpath}" destdir="${build.test.classes.dir}" srcdir="${test.test3.dir}:${test.test2.dir}:${test.test.dir}"/>
+        <j2seproject3:depend classpath="${javac.test.classpath}" destdir="${build.test.classes.dir}" srcdir="${test.test4.dir}:${test.test3.dir}:${test.test2.dir}:${test.test.dir}"/>
     </target>
     <target depends="init,deps-jar,compile,-pre-pre-compile-test,-pre-compile-test,-compile-test-depend" if="have.tests" name="-do-compile-test">
-        <j2seproject3:javac apgeneratedsrcdir="${build.test.classes.dir}" classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" processorpath="${javac.test.processorpath}" srcdir="${test.test3.dir}:${test.test2.dir}:${test.test.dir}"/>
+        <j2seproject3:javac apgeneratedsrcdir="${build.test.classes.dir}" classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" processorpath="${javac.test.processorpath}" srcdir="${test.test4.dir}:${test.test3.dir}:${test.test2.dir}:${test.test.dir}"/>
         <copy todir="${build.test.classes.dir}">
+            <fileset dir="${test.test4.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${test.test3.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${test.test2.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${test.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
@@ -1302,8 +1314,9 @@ is divided into following sections:
     <target depends="init,deps-jar,compile,-pre-pre-compile-test,-pre-compile-test-single" if="have.tests" name="-do-compile-test-single">
         <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
         <j2seproject3:force-recompile destdir="${build.test.classes.dir}"/>
-        <j2seproject3:javac apgeneratedsrcdir="${build.test.classes.dir}" classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" excludes="" includes="${javac.includes}" processorpath="${javac.test.processorpath}" sourcepath="${test.test3.dir}:${test.test2.dir}:${test.test.dir}" srcdir="${test.test3.dir}:${test.test2.dir}:${test.test.dir}"/>
+        <j2seproject3:javac apgeneratedsrcdir="${build.test.classes.dir}" classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" excludes="" includes="${javac.includes}" processorpath="${javac.test.processorpath}" sourcepath="${test.test4.dir}:${test.test3.dir}:${test.test2.dir}:${test.test.dir}" srcdir="${test.test4.dir}:${test.test3.dir}:${test.test2.dir}:${test.test.dir}"/>
         <copy todir="${build.test.classes.dir}">
+            <fileset dir="${test.test4.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${test.test3.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${test.test2.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${test.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>

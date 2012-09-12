@@ -9,12 +9,18 @@
  */
 public class Solver {
 
+  private Stack<Board> solution = new Stack<Board>();
+
   /**
    * find a solution to the initial board (using the A* algorithm)
    *
    * @param initial
    */
   public Solver(Board initial) {
+
+    MinPQ<Board> steps = new MinPQ<Board>();
+    steps.insert(initial);
+
   }
 
   /**
@@ -32,7 +38,7 @@ public class Solver {
    * @return
    */
   public int moves() {
-    return 0;
+    return solution.size();
   }
 
   /**
@@ -41,7 +47,7 @@ public class Solver {
    * @return
    */
   public Iterable<Board> solution() {
-    return null;
+    return solution;
   }
 
   /**
