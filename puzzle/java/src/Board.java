@@ -16,8 +16,8 @@ public class Board {
 
   private class IntVec2 {
 
-    public int x;
-    public int y;
+    private int x;
+    private int y;
 
     public IntVec2(int x, int y) {
       this.x = x;
@@ -38,6 +38,11 @@ public class Board {
       this.x = bothValues;
       this.y = bothValues;
     }
+
+    @Override
+    public String toString() {
+      return (this.x + ":" + this.y);
+    }
   }
   private final int INVALID_VALUE = -1;
   private final int EMPTY_SECTION = 0;
@@ -45,6 +50,7 @@ public class Board {
   private int[][] tiles;
   private IntVec2 zero = new IntVec2(INVALID_VALUE);
   private int hammingCached = INVALID_VALUE;
+  private int manhattanCached = INVALID_VALUE;
 
   /**
    * construct a board from an N-by-N array of blocks (where blocks[i][j] =
@@ -55,15 +61,24 @@ public class Board {
   public Board(int[][] blocks) {
     N = blocks.length;
     tiles = copyArray(blocks);
-
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
+    boolean founded = false;
+    for (int i = 0; i < N && !founded; i++) {
+      for (int j = 0; j < N && !founded; j++) {
         if (tiles[i][j] == 0) {
           zero.x = i;
           zero.y = j;
+          founded = true;
         }
       }
     }
+  }
+
+  private Board(int[][] blocks, IntVec2 pressetedZero) {
+    N = blocks.length;
+    tiles = copyArray(blocks);
+
+    this.zero.x = pressetedZero.x;
+    this.zero.y = pressetedZero.y;
   }
 
   /**
@@ -105,7 +120,29 @@ public class Board {
    * @return
    */
   public int manhattan() {
-    return 0;
+    if (manhattanCached != INVALID_VALUE) {
+      return manhattanCached;
+    }
+    int result = 0;
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        if (tiles[i][j] == EMPTY_SECTION) {
+          continue;
+        }
+        if (tiles[i][j] != i * N + j + 1) {
+          int val = tiles[i][j];
+          //Column
+          int ry = (val - 1) % N;
+          //Row
+          int rx = (val - 1) / N;
+          int delta = Math.abs(i - rx) + Math.abs(j - ry);
+          result += delta;
+        }
+      }
+    }
+
+    manhattanCached = result;
+    return result;
   }
 
   /**
@@ -123,7 +160,18 @@ public class Board {
    * @return
    */
   public Board twin() {
-    return new Board(tiles);
+    Board result = new Board(tiles, this.zero);
+    int i = 0;
+    if (zero.x == 0) {
+      i++;
+    }
+
+    result.swap(result.tiles, new IntVec2(i, 0), new IntVec2(i, 1));
+    return result;
+  }
+
+  private Board cloneBoard() {
+    return new Board(tiles, this.zero);
   }
 
   /**
@@ -141,6 +189,14 @@ public class Board {
       return false;
     }
     Board that = (Board) y;
+
+//    if (that.hamming() != hamming()) {
+//      return false;
+//    }
+    if (that.manhattan() != manhattan()) {
+      return false;
+    }
+
     if (that.N != N) {
       return false;
     }
@@ -169,31 +225,32 @@ public class Board {
   public Iterable<Board> neighbors() {
     Stack<Board> result = new Stack<Board>();
 
-    IntVec2 right = getNeighborIndex(N, zero, NeighborDirection.RIGHT);
-    IntVec2 left = getNeighborIndex(N, zero, NeighborDirection.LEFT);
-    IntVec2 up = getNeighborIndex(N, zero, NeighborDirection.UP);
-    IntVec2 down = getNeighborIndex(N, zero, NeighborDirection.DOWN);
+    IntVec2 right = getNeighborIndex(zero, NeighborDirection.RIGHT);
+    IntVec2 left = getNeighborIndex(zero, NeighborDirection.LEFT);
+    IntVec2 up = getNeighborIndex(zero, NeighborDirection.UP);
+    IntVec2 down = getNeighborIndex(zero, NeighborDirection.DOWN);
 
-    if (right.x != INVALID_VALUE) {
-      result.push(createTwinWithPermutation(right));
-    }
-    if (left.x != INVALID_VALUE) {
-      result.push(createTwinWithPermutation(left));
-    }
+
     if (up.x != INVALID_VALUE) {
-      result.push(createTwinWithPermutation(up));
+      result.push(createCloneWithPermutation(up));
     }
     if (down.x != INVALID_VALUE) {
-
-      result.push(createTwinWithPermutation(down));
+      result.push(createCloneWithPermutation(down));
     }
-
+    if (right.x != INVALID_VALUE) {
+      result.push(createCloneWithPermutation(right));
+    }
+    if (left.x != INVALID_VALUE) {
+      result.push(createCloneWithPermutation(left));
+    }
     return result;
   }
 
-  private Board createTwinWithPermutation(IntVec2 target) {
-    Board result = twin();
+  private Board createCloneWithPermutation(IntVec2 target) {
+    Board result = cloneBoard();
     swap(result.tiles, result.zero, target);
+    result.zero.x = target.x;
+    result.zero.y = target.y;
     return result;
   }
 
@@ -230,7 +287,8 @@ public class Board {
     arr[second.x][second.y] = temp;
   }
 
-  private IntVec2 getNeighborIndex(int N, IntVec2 index, NeighborDirection direction) {
+  private IntVec2 getNeighborIndex(IntVec2 index,
+          NeighborDirection direction) {
 
     IntVec2 result = new IntVec2(index);
     if (direction == NeighborDirection.RIGHT && index.y != (N - 1)) {

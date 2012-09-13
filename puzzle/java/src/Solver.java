@@ -21,9 +21,21 @@ public class Solver {
       return p1.hamming() - p2.hamming();
     }
   }
+
+  private class BoardManhattanComparator implements Comparator<Board> {
+
+    @Override
+    public int compare(Board p1, Board p2) {
+      if (p1 == p2 && p1 != null && p2 != null) {
+        return 0;
+      }
+      return p1.manhattan() - p2.manhattan();
+    }
+  }
   private Queue<Board> solution = new Queue<Board>();
-  private Board previousSearchNode = null;
   private BoardHammingComparator hammingComparator = new BoardHammingComparator();
+  private BoardManhattanComparator manhattanComparator = new BoardManhattanComparator();
+  private boolean isSolvable = true;
 
   /**
    * find a solution to the initial board (using the A* algorithm)
@@ -31,22 +43,60 @@ public class Solver {
    * @param initial
    */
   public Solver(Board initial) {
-    MinPQ<Board> steps = new MinPQ<Board>(hammingComparator);
-    steps.insert(initial);
-    while (true) {
-      Board dequeued = steps.delMin();
-      solution.enqueue(dequeued);
-      if (dequeued.isGoal()) {
+
+    Board infeasibleClone = initial.twin();
+
+    MinPQ<Board> stepsInfeasibleClone = new MinPQ<Board>(manhattanComparator);
+    MinPQ<Board> stepsOriginal = new MinPQ<Board>(manhattanComparator);
+
+    stepsInfeasibleClone.insert(infeasibleClone);
+    stepsOriginal.insert(initial);
+
+    Board prevOriginal = null;
+    Board prevInfeasibleClone = null;
+    boolean originalSolved = false;
+    while (!originalSolved) {
+      Board originalStep = tryToSolve(stepsOriginal, prevOriginal);
+      prevOriginal = originalStep;
+      solution.enqueue(originalStep);
+      if (originalStep.isGoal()) {
+        originalSolved = true;
+      }
+
+
+      Board infeasibleCloneStep = tryToSolve(stepsInfeasibleClone,
+              prevInfeasibleClone);
+      prevInfeasibleClone = infeasibleCloneStep;
+//      solution.enqueue(originalStep);
+      if (infeasibleCloneStep.isGoal() && !originalSolved) {
+        isSolvable = false;
         break;
       }
+
+//      Board dequeued = steps.delMin();
+//      solution.enqueue(dequeued);
+//      if (dequeued.isGoal()) {
+//        break;
+//      }
+//      for (Board neighbor : dequeued.neighbors()) {
+//        if (!neighbor.equals(previousSearchNode)) {
+//          steps.insert(neighbor);
+//        }
+//      }
+//      previousSearchNode = dequeued;
+    }
+  }
+
+  private Board tryToSolve(MinPQ<Board> boards, Board prev) {
+    Board dequeued = boards.delMin();
+    if (!dequeued.isGoal()) {
       for (Board neighbor : dequeued.neighbors()) {
-        if (!neighbor.equals(previousSearchNode)) {
-          steps.insert(neighbor);
+        if (!neighbor.equals(prev)) {
+          boards.insert(neighbor);
         }
       }
-      previousSearchNode = dequeued;
-
     }
+    return dequeued;
   }
 
   /**
@@ -55,7 +105,7 @@ public class Solver {
    * @return
    */
   public boolean isSolvable() {
-    return true;
+    return isSolvable;
   }
 
   /**

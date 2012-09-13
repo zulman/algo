@@ -50,6 +50,39 @@ public class BoardTest {
   }
 
   /**
+   * Test of hamming method, of class Board.
+   */
+  @Test
+  public void manhattan() {
+    assertEquals(0, board.manhattan());
+
+    tiles[0][0] = 8;
+    tiles[0][1] = 1;
+    tiles[0][2] = 3;
+
+    tiles[1][0] = 4;
+    tiles[1][1] = 0;
+    tiles[1][2] = 2;
+
+    tiles[2][0] = 7;
+    tiles[2][1] = 6;
+    tiles[2][2] = 5;
+
+    Board tempBoard = new Board(tiles);
+//    System.out.println("Manhattan Initial " + tempBoard);
+    assertEquals(10, tempBoard.manhattan());
+
+
+//    System.out.println((4 - 1) % 3);
+//    System.out.println((5 - 1) % 3);
+//    System.out.println((6 - 1) % 3);
+//
+//    System.out.println((1 - 1) / 3);
+//    System.out.println((2 - 1) / 3);
+//    System.out.println((3 - 1) / 3);
+  }
+
+  /**
    * Test of isGoal method, of class Board.
    */
   @Test
@@ -75,11 +108,11 @@ public class BoardTest {
     tiles[1][1] = 0;
 
     Board tempBoard = new Board(tiles);
-    System.out.println("Initial " + tempBoard);
+//    System.out.println("Initial " + tempBoard);
     int count = 0;
     for (Board b : tempBoard.neighbors()) {
       assertEquals(false, b.isGoal());
-      System.out.println("Neighbor: " + b);
+//      System.out.println("Neighbor: " + b);
       count++;
     }
     assertEquals(4, count);
@@ -89,11 +122,11 @@ public class BoardTest {
     tiles[0][0] = 0;
 
     tempBoard = new Board(tiles);
-    System.out.println("Initial " + tempBoard);
+//    System.out.println("Initial " + tempBoard);
     count = 0;
     for (Board b : tempBoard.neighbors()) {
       assertEquals(false, b.isGoal());
-      System.out.println("Neighbor: " + b);
+//      System.out.println("Neighbor: " + b);
       count++;
     }
     assertEquals(2, count);
