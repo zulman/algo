@@ -1,15 +1,29 @@
+
 /*
  * Sep 11, 2012
  * 9:15:41 AM
  */
-
 /**
  *
  * @author oleg.chumakov
  */
+import java.util.Comparator;
+
 public class Solver {
 
-  private Stack<Board> solution = new Stack<Board>();
+  private class BoardHammingComparator implements Comparator<Board> {
+
+    @Override
+    public int compare(Board p1, Board p2) {
+      if (p1 == p2 && p1 != null && p2 != null) {
+        return 0;
+      }
+      return p1.hamming() - p2.hamming();
+    }
+  }
+  private Queue<Board> solution = new Queue<Board>();
+  private Board previousSearchNode = null;
+  private BoardHammingComparator hammingComparator = new BoardHammingComparator();
 
   /**
    * find a solution to the initial board (using the A* algorithm)
@@ -17,10 +31,22 @@ public class Solver {
    * @param initial
    */
   public Solver(Board initial) {
-
-    MinPQ<Board> steps = new MinPQ<Board>();
+    MinPQ<Board> steps = new MinPQ<Board>(hammingComparator);
     steps.insert(initial);
+    while (true) {
+      Board dequeued = steps.delMin();
+      solution.enqueue(dequeued);
+      if (dequeued.isGoal()) {
+        break;
+      }
+      for (Board neighbor : dequeued.neighbors()) {
+        if (!neighbor.equals(previousSearchNode)) {
+          steps.insert(neighbor);
+        }
+      }
+      previousSearchNode = dequeued;
 
+    }
   }
 
   /**
@@ -29,7 +55,7 @@ public class Solver {
    * @return
    */
   public boolean isSolvable() {
-    return false;
+    return true;
   }
 
   /**

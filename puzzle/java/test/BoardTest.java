@@ -15,130 +15,87 @@ public class BoardTest {
 
   public BoardTest() {
   }
+  private Board board;
+  private int N = 3;
+  private int[][] tiles;
 
   @Before
   public void setUp() {
-//    Integer a = 1;
-//    Integer b = 1;
-//    testFunction(a, b);
-//    System.out.println(a + " " + b);
+    int N = 3;
+    tiles = new int[N][N];
+    for (int i = 0; i < tiles.length; i++) {
+      for (int j = 0; j < tiles[i].length; j++) {
+        tiles[i][j] = i * N + j + 1;
+      }
+    }
+
+    tiles[N - 1][N - 1] = 0;
+    board = new Board(tiles);
   }
-//
-//  private void testFunction(Integer a, Integer b) {
-//    a.i = -1;
-//    b = -1;
-//  }
 
   /**
    * Test of dimension method, of class Board.
    */
   @Test
-  public void testDimension() {
-    System.out.println("dimension");
-    Board instance = null;
-    int expResult = 0;
-    int result = instance.dimension();
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
+  public void dimension_must_be_valid() {
+    assertEquals(N, board.dimension());
   }
 
   /**
    * Test of hamming method, of class Board.
    */
   @Test
-  public void testHamming() {
-    System.out.println("hamming");
-    Board instance = null;
-    int expResult = 0;
-    int result = instance.hamming();
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
-  }
-
-  /**
-   * Test of manhattan method, of class Board.
-   */
-  @Test
-  public void testManhattan() {
-    System.out.println("manhattan");
-    Board instance = null;
-    int expResult = 0;
-    int result = instance.manhattan();
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
+  public void hamming_distance_of_solved_board_must_be_zero() {
+    assertEquals(0, board.hamming());
   }
 
   /**
    * Test of isGoal method, of class Board.
    */
   @Test
-  public void testIsGoal() {
-    System.out.println("isGoal");
-    Board instance = null;
-    boolean expResult = false;
-    boolean result = instance.isGoal();
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
+  public void solved_board_must_be_marked_as_goal() {
+    assertEquals(true, board.isGoal());
   }
 
   /**
    * Test of twin method, of class Board.
    */
   @Test
-  public void testTwin() {
-    System.out.println("twin");
-    Board instance = null;
-    Board expResult = null;
-    Board result = instance.twin();
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
-  }
-
-  /**
-   * Test of equals method, of class Board.
-   */
-  @Test
-  public void testEquals() {
-    System.out.println("equals");
-    Object y = null;
-    Board instance = null;
-    boolean expResult = false;
-    boolean result = instance.equals(y);
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
+  public void twin_must_create_deep_equal_board() {
+    assertEquals(true, board.twin().equals(board));
+    assertEquals(true, board.equals(board));
   }
 
   /**
    * Test of neighbors method, of class Board.
    */
   @Test
-  public void testNeighbors() {
-    System.out.println("neighbors");
-    Board instance = null;
-    Iterable expResult = null;
-    Iterable result = instance.neighbors();
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
-  }
+  public void neighbor_must_return_only_possible_boards() {
+    tiles[N - 1][N - 1] = 5;
+    tiles[1][1] = 0;
 
-  /**
-   * Test of toString method, of class Board.
-   */
-  @Test
-  public void testToString() {
-    System.out.println("toString");
-    Board instance = null;
-    String expResult = "";
-    String result = instance.toString();
-    assertEquals(expResult, result);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
+    Board tempBoard = new Board(tiles);
+    System.out.println("Initial " + tempBoard);
+    int count = 0;
+    for (Board b : tempBoard.neighbors()) {
+      assertEquals(false, b.isGoal());
+      System.out.println("Neighbor: " + b);
+      count++;
+    }
+    assertEquals(4, count);
+
+    tiles[1][1] = 5;
+    tiles[N - 1][N - 1] = 1;
+    tiles[0][0] = 0;
+
+    tempBoard = new Board(tiles);
+    System.out.println("Initial " + tempBoard);
+    count = 0;
+    for (Board b : tempBoard.neighbors()) {
+      assertEquals(false, b.isGoal());
+      System.out.println("Neighbor: " + b);
+      count++;
+    }
+    assertEquals(2, count);
   }
 }

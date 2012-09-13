@@ -39,10 +39,12 @@ public class Board {
       this.y = bothValues;
     }
   }
-  private final int INVALID_INDEX = -1;
+  private final int INVALID_VALUE = -1;
+  private final int EMPTY_SECTION = 0;
   private int N;
   private int[][] tiles;
-  private IntVec2 zero = new IntVec2(INVALID_INDEX);
+  private IntVec2 zero = new IntVec2(INVALID_VALUE);
+  private int hammingCached = INVALID_VALUE;
 
   /**
    * construct a board from an N-by-N array of blocks (where blocks[i][j] =
@@ -79,18 +81,21 @@ public class Board {
    * @return
    */
   public int hamming() {
+    if (hammingCached != INVALID_VALUE) {
+      return hammingCached;
+    }
     int result = 0;
     for (int i = 0; i < N; i++) {
       for (int j = 0; j < N; j++) {
-        if (i == N - 1 && j == N - 1 && tiles[i][j] != 0) {
-          result++;
+        if (tiles[i][j] == EMPTY_SECTION) {
+          continue;
         }
-
         if (tiles[i][j] != i * N + j + 1) {
           result++;
         }
       }
     }
+    hammingCached = result;
     return result;
   }
 
@@ -109,20 +114,7 @@ public class Board {
    * @return
    */
   public boolean isGoal() {
-
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-
-        if (i == N - 1 && j == N - 1 && tiles[i][j] != 0) {
-          return false;
-        }
-
-        if (tiles[i][j] != i * N + j + 1) {
-          return false;
-        }
-      }
-    }
-    return true;
+    return (hamming() == 0);
   }
 
   /**
@@ -157,16 +149,8 @@ public class Board {
       return false;
     }
 
-
-//    if (that.tiles.length != tiles.length) {
-//      return false;
-//    }
-
     for (int i = 0; i < tiles.length; i++) {
       for (int j = 0; j < tiles[i].length; j++) {
-//        if (tiles[i].length != that.tiles.length) {
-//          return false;
-//        }
 
         if (that.tiles[i][j] != tiles[i][j]) {
           return false;
@@ -190,16 +174,17 @@ public class Board {
     IntVec2 up = getNeighborIndex(N, zero, NeighborDirection.UP);
     IntVec2 down = getNeighborIndex(N, zero, NeighborDirection.DOWN);
 
-    if (right.x != INVALID_INDEX) {
+    if (right.x != INVALID_VALUE) {
       result.push(createTwinWithPermutation(right));
     }
-    if (left.x != INVALID_INDEX) {
+    if (left.x != INVALID_VALUE) {
       result.push(createTwinWithPermutation(left));
     }
-    if (up.x != INVALID_INDEX) {
+    if (up.x != INVALID_VALUE) {
       result.push(createTwinWithPermutation(up));
     }
-    if (down.x != INVALID_INDEX) {
+    if (down.x != INVALID_VALUE) {
+
       result.push(createTwinWithPermutation(down));
     }
 
@@ -238,16 +223,7 @@ public class Board {
     }
     return result;
   }
-//
-//  private void swap(int[][] arr, int i, int j, int di, int dj) {
-//    int temp = arr[i][j];
-//    arr[i][j] = arr[di][dj];
-//    arr[di][dj] = temp;
-//  }
 
-//  private void applyPermutation(IntVec2)
-//  {
-//  }
   private void swap(int[][] arr, IntVec2 first, IntVec2 second) {
     int temp = arr[first.x][first.y];
     arr[first.x][first.y] = arr[second.x][second.y];
@@ -257,22 +233,20 @@ public class Board {
   private IntVec2 getNeighborIndex(int N, IntVec2 index, NeighborDirection direction) {
 
     IntVec2 result = new IntVec2(index);
-
-    if (direction == NeighborDirection.RIGHT && index.y != N - 1) {
+    if (direction == NeighborDirection.RIGHT && index.y != (N - 1)) {
       result.y++;
       return result;
     } else if (direction == NeighborDirection.LEFT && index.y != 0) {
       result.y--;
       return result;
-    } else if (direction == NeighborDirection.UP && index.x == 0) {
-      result.x++;
-      return result;
-    } else if (direction == NeighborDirection.DOWN && index.x == N - 1) {
+    } else if (direction == NeighborDirection.UP && index.x != 0) {
       result.x--;
       return result;
+    } else if (direction == NeighborDirection.DOWN && index.x != (N - 1)) {
+      result.x++;
+      return result;
     }
-
-    result.set(INVALID_INDEX);
+    result.set(INVALID_VALUE);
     return result;
   }
 }
