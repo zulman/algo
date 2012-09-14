@@ -161,12 +161,23 @@ public class Board {
    */
   public Board twin() {
     Board result = new Board(tiles, this.zero);
-    int i = 0;
-    if (zero.x == 0) {
-      i++;
+    int i = zero.x;
+
+    int y1 = 0;
+    int y2 = N - 1;
+    boolean founded = false;
+
+    while (!founded) {
+      if (y1 != zero.y && y2 != zero.y) {
+        founded = true;
+      } else if (y1 == zero.y) {
+        y1++;
+      } else if (y2 == zero.y) {
+        y2--;
+      }
     }
 
-    result.swap(result.tiles, new IntVec2(i, 0), new IntVec2(i, 1));
+    result.swap(result.tiles, new IntVec2(i, y1), new IntVec2(i, y2));
     return result;
   }
 

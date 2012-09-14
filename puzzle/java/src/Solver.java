@@ -11,17 +11,16 @@ import java.util.Comparator;
 
 public class Solver {
 
-  private class BoardHammingComparator implements Comparator<Board> {
-
-    @Override
-    public int compare(Board p1, Board p2) {
-      if (p1 == p2 && p1 != null && p2 != null) {
-        return 0;
-      }
-      return p1.hamming() - p2.hamming();
-    }
-  }
-
+//  private class BoardHammingComparator implements Comparator<Board> {
+//
+//    @Override
+//    public int compare(Board p1, Board p2) {
+//      if (p1 == p2 && p1 != null && p2 != null) {
+//        return 0;
+//      }
+//      return p1.hamming() - p2.hamming();
+//    }
+//  }
   private class BoardManhattanComparator implements Comparator<Board> {
 
     @Override
@@ -33,7 +32,7 @@ public class Solver {
     }
   }
   private Queue<Board> solution = new Queue<Board>();
-  private BoardHammingComparator hammingComparator = new BoardHammingComparator();
+//  private BoardHammingComparator hammingComparator = new BoardHammingComparator();
   private BoardManhattanComparator manhattanComparator = new BoardManhattanComparator();
   private boolean isSolvable = true;
 
@@ -63,27 +62,16 @@ public class Solver {
         originalSolved = true;
       }
 
-
       Board infeasibleCloneStep = tryToSolve(stepsInfeasibleClone,
               prevInfeasibleClone);
       prevInfeasibleClone = infeasibleCloneStep;
-//      solution.enqueue(originalStep);
       if (infeasibleCloneStep.isGoal() && !originalSolved) {
         isSolvable = false;
         break;
       }
 
-//      Board dequeued = steps.delMin();
-//      solution.enqueue(dequeued);
-//      if (dequeued.isGoal()) {
-//        break;
-//      }
-//      for (Board neighbor : dequeued.neighbors()) {
-//        if (!neighbor.equals(previousSearchNode)) {
-//          steps.insert(neighbor);
-//        }
-//      }
-//      previousSearchNode = dequeued;
+//      System.out.println("Original " + prevOriginal.toString());
+//      System.out.println("Infeasible " + prevInfeasibleClone.toString());
     }
   }
 
@@ -114,7 +102,7 @@ public class Solver {
    * @return
    */
   public int moves() {
-    return solution.size();
+    return solution.size() - 1;
   }
 
   /**
@@ -132,7 +120,6 @@ public class Solver {
    * @param args
    */
   public static void main(String[] args) {
-
     // create initial board from file
     In in = new In(args[0]);
     int N = in.readInt();

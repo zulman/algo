@@ -69,17 +69,7 @@ public class BoardTest {
     tiles[2][2] = 5;
 
     Board tempBoard = new Board(tiles);
-//    System.out.println("Manhattan Initial " + tempBoard);
     assertEquals(10, tempBoard.manhattan());
-
-
-//    System.out.println((4 - 1) % 3);
-//    System.out.println((5 - 1) % 3);
-//    System.out.println((6 - 1) % 3);
-//
-//    System.out.println((1 - 1) / 3);
-//    System.out.println((2 - 1) / 3);
-//    System.out.println((3 - 1) / 3);
   }
 
   /**
@@ -95,8 +85,7 @@ public class BoardTest {
    */
   @Test
   public void twin_must_create_deep_equal_board() {
-    assertEquals(true, board.twin().equals(board));
-    assertEquals(true, board.equals(board));
+    assertEquals(false, board.equals(board.twin()));
   }
 
   /**
