@@ -11,29 +11,35 @@ import java.util.Comparator;
 
 public class Solver {
 
-//  private class BoardHammingComparator implements Comparator<Board> {
-//
-//    @Override
-//    public int compare(Board p1, Board p2) {
-//      if (p1 == p2 && p1 != null && p2 != null) {
-//        return 0;
-//      }
-//      return p1.hamming() - p2.hamming();
-//    }
-//  }
-  private class BoardManhattanComparator implements Comparator<Board> {
+  private class SNComparator implements Comparator<SearchNode> {
 
     @Override
-    public int compare(Board p1, Board p2) {
+    public int compare(SearchNode p1, SearchNode p2) {
       if (p1 == p2 && p1 != null && p2 != null) {
         return 0;
       }
-      return p1.manhattan() - p2.manhattan();
+
+      return p1.priority() - p2.priority();
     }
   }
-  private Queue<Board> solution = new Queue<Board>();
-//  private BoardHammingComparator hammingComparator = new BoardHammingComparator();
-  private BoardManhattanComparator manhattanComparator = new BoardManhattanComparator();
+
+  private class SearchNode {
+
+    private Board board;
+    private int moves;
+    private SearchNode prevSN;
+
+    private SearchNode(Board board, int moves, SearchNode prevSN) {
+      this.board = board;
+      this.moves = moves;
+      this.prevSN = prevSN;
+    }
+
+    private int priority() {
+      return this.board.manhattan() + moves;
+    }
+  }
+  private Stack<Board> solution = null;
   private boolean isSolvable = true;
 
   /**
@@ -41,47 +47,50 @@ public class Solver {
    *
    * @param initial
    */
-  public Solver(Board initial) {
+  public Solver(Board oinitial) {
+    //Instead of clone object because Board class API restrictions
+    Board initial = oinitial.twin().twin();
 
-    Board infeasibleClone = initial.twin();
+    SearchNode snInitial = new SearchNode(initial, 0, null);
+    SearchNode snInitialTW = new SearchNode(initial.twin(), 0, null);
 
-    MinPQ<Board> stepsInfeasibleClone = new MinPQ<Board>(manhattanComparator);
-    MinPQ<Board> stepsOriginal = new MinPQ<Board>(manhattanComparator);
+    MinPQ<SearchNode> stepsOriginal = new MinPQ<SearchNode>(new SNComparator());
+    MinPQ<SearchNode> stepsTW = new MinPQ<SearchNode>(new SNComparator());
 
-    stepsInfeasibleClone.insert(infeasibleClone);
-    stepsOriginal.insert(initial);
+    stepsOriginal.insert(snInitial);
+    stepsTW.insert(snInitialTW);
 
-    Board prevOriginal = null;
-    Board prevInfeasibleClone = null;
     boolean originalSolved = false;
     while (!originalSolved) {
-      Board originalStep = tryToSolve(stepsOriginal, prevOriginal);
-      prevOriginal = originalStep;
-      solution.enqueue(originalStep);
-      if (originalStep.isGoal()) {
+
+      SearchNode originalStep = tryToSolve(stepsOriginal);
+      if (originalStep.board.isGoal()) {
         originalSolved = true;
+        solution = new Stack<Board>();
+        while (originalStep.prevSN != null) {
+          solution.push(originalStep.board);
+          originalStep = originalStep.prevSN;
+        }
+        solution.push(originalStep.board);
       }
 
-      Board infeasibleCloneStep = tryToSolve(stepsInfeasibleClone,
-              prevInfeasibleClone);
-      prevInfeasibleClone = infeasibleCloneStep;
-      if (infeasibleCloneStep.isGoal() && !originalSolved) {
+      SearchNode twStep = tryToSolve(stepsTW);
+      if (twStep.board.isGoal() && !originalSolved) {
+        originalSolved = true;
         isSolvable = false;
-        break;
       }
-
-//      System.out.println("Original " + prevOriginal.toString());
-//      System.out.println("Infeasible " + prevInfeasibleClone.toString());
     }
   }
 
-  private Board tryToSolve(MinPQ<Board> boards, Board prev) {
-    Board dequeued = boards.delMin();
-    if (!dequeued.isGoal()) {
-      for (Board neighbor : dequeued.neighbors()) {
-        if (!neighbor.equals(prev)) {
-          boards.insert(neighbor);
+  private SearchNode tryToSolve(MinPQ<SearchNode> boards) {
+    SearchNode dequeued = boards.delMin();
+    if (!dequeued.board.isGoal()) {
+      for (Board neighbor : dequeued.board.neighbors()) {
+        if (dequeued.prevSN != null && neighbor.equals(dequeued.prevSN.board)) {
+          continue;
         }
+        SearchNode nsn = new SearchNode(neighbor, dequeued.moves + 1, dequeued);
+        boards.insert(nsn);
       }
     }
     return dequeued;
@@ -102,7 +111,11 @@ public class Solver {
    * @return
    */
   public int moves() {
-    return solution.size() - 1;
+    int res = -1;
+    if (solution != null) {
+      res = solution.size() - 1;
+    }
+    return res;
   }
 
   /**

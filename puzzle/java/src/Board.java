@@ -9,48 +9,60 @@
  */
 public class Board {
 
-  private enum NeighborDirection {
-
-    RIGHT, LEFT, UP, DOWN
-  }
-
-  private class IntVec2 {
-
-    private int x;
-    private int y;
-
-    public IntVec2(int x, int y) {
-      this.x = x;
-      this.y = y;
-    }
-
-    public IntVec2(IntVec2 other) {
-      this.x = other.x;
-      this.y = other.y;
-    }
-
-    public IntVec2(int bothValues) {
-      this.x = bothValues;
-      this.y = bothValues;
-    }
-
-    public void set(int bothValues) {
-      this.x = bothValues;
-      this.y = bothValues;
-    }
-
-    @Override
-    public String toString() {
-      return (this.x + ":" + this.y);
-    }
-  }
-  private final int INVALID_VALUE = -1;
-  private final int EMPTY_SECTION = 0;
+//  private enum NeighborDirection {
+//
+//    RIGHT, LEFT, UP, DOWN
+//  }
+//  private class IntVec2 {
+//
+//    private int x;
+//    private int y;
+//
+//    public IntVec2(int x, int y) {
+//      this.x = x;
+//      this.y = y;
+//    }
+//
+//    public IntVec2(IntVec2 other) {
+//      this.x = other.x;
+//      this.y = other.y;
+//    }
+//
+//    public IntVec2(int bothValues) {
+//      this.x = bothValues;
+//      this.y = bothValues;
+//    }
+//
+//    public void set(int bothValues) {
+//      this.x = bothValues;
+//      this.y = bothValues;
+//    }
+//
+//    @Override
+//    public String toString() {
+//      return (this.x + ":" + this.y);
+//    }
+//  }
+  private static final byte RIGHT = 0;
+  private static final byte LEFT = 1;
+  private static final byte UP = 2;
+  private static final byte DOWN = 3;
+  private static final byte INVALID_VALUE = -1;
+  private static final byte EMPTY_SECTION = 0;
   private int N;
-  private int[][] tiles;
-  private IntVec2 zero = new IntVec2(INVALID_VALUE);
+  private char[][] tiles;
+//  private IntVec2 zero = new IntVec2(INVALID_VALUE);
+  private int zeroI = INVALID_VALUE;
+  private int zeroJ = INVALID_VALUE;
   private int hammingCached = INVALID_VALUE;
   private int manhattanCached = INVALID_VALUE;
+  
+  /**
+   * Using to avoid IntVec2 instantiating
+   * because of memory usage restrictions
+   */
+  private int resulti = 0;
+  private int resultj = 0;
 
   /**
    * construct a board from an N-by-N array of blocks (where blocks[i][j] =
@@ -65,20 +77,20 @@ public class Board {
     for (int i = 0; i < N && !founded; i++) {
       for (int j = 0; j < N && !founded; j++) {
         if (tiles[i][j] == 0) {
-          zero.x = i;
-          zero.y = j;
+          zeroI = i;
+          zeroJ = j;
           founded = true;
         }
       }
     }
   }
 
-  private Board(int[][] blocks, IntVec2 pressetedZero) {
+  private Board(char[][] blocks, int i, int j) {
     N = blocks.length;
     tiles = copyArray(blocks);
 
-    this.zero.x = pressetedZero.x;
-    this.zero.y = pressetedZero.y;
+    this.zeroI = i;
+    this.zeroJ = j;
   }
 
   /**
@@ -160,29 +172,18 @@ public class Board {
    * @return
    */
   public Board twin() {
-    Board result = new Board(tiles, this.zero);
-    int i = zero.x;
-
-    int y1 = 0;
-    int y2 = N - 1;
-    boolean founded = false;
-
-    while (!founded) {
-      if (y1 != zero.y && y2 != zero.y) {
-        founded = true;
-      } else if (y1 == zero.y) {
-        y1++;
-      } else if (y2 == zero.y) {
-        y2--;
-      }
+    Board result = new Board(tiles, zeroI, zeroJ);
+    int i = 0;
+    if (zeroI == i) {
+      i++;
     }
 
-    result.swap(result.tiles, new IntVec2(i, y1), new IntVec2(i, y2));
+    result.swap(result.tiles, i, 0, i, 1);
     return result;
   }
 
   private Board cloneBoard() {
-    return new Board(tiles, this.zero);
+    return new Board(tiles, zeroI, zeroJ);
   }
 
   /**
@@ -196,14 +197,11 @@ public class Board {
     if (y == null) {
       return false;
     }
-    if (y.getClass() != Board.class) {
+    if (!(y instanceof Board)) {
       return false;
     }
     Board that = (Board) y;
 
-//    if (that.hamming() != hamming()) {
-//      return false;
-//    }
     if (that.manhattan() != manhattan()) {
       return false;
     }
@@ -212,7 +210,7 @@ public class Board {
       return false;
     }
 
-    if (that.zero.x != zero.x || that.zero.y != zero.y) {
+    if (that.zeroI != zeroI || that.zeroJ != zeroJ) {
       return false;
     }
 
@@ -236,32 +234,20 @@ public class Board {
   public Iterable<Board> neighbors() {
     Stack<Board> result = new Stack<Board>();
 
-    IntVec2 right = getNeighborIndex(zero, NeighborDirection.RIGHT);
-    IntVec2 left = getNeighborIndex(zero, NeighborDirection.LEFT);
-    IntVec2 up = getNeighborIndex(zero, NeighborDirection.UP);
-    IntVec2 down = getNeighborIndex(zero, NeighborDirection.DOWN);
+    for (int i = RIGHT; i <= DOWN; i++) {
+      if (getNeighborIndex(zeroI, zeroJ, i)) {
+        result.push(createCloneWithPermutation(resulti, resultj));
+      }
+    }
 
-
-    if (up.x != INVALID_VALUE) {
-      result.push(createCloneWithPermutation(up));
-    }
-    if (down.x != INVALID_VALUE) {
-      result.push(createCloneWithPermutation(down));
-    }
-    if (right.x != INVALID_VALUE) {
-      result.push(createCloneWithPermutation(right));
-    }
-    if (left.x != INVALID_VALUE) {
-      result.push(createCloneWithPermutation(left));
-    }
     return result;
   }
 
-  private Board createCloneWithPermutation(IntVec2 target) {
+  private Board createCloneWithPermutation(int i, int j) {
     Board result = cloneBoard();
-    swap(result.tiles, result.zero, target);
-    result.zero.x = target.x;
-    result.zero.y = target.y;
+    swap(result.tiles, result.zeroI, result.zeroJ, i, j);
+    result.zeroI = i;
+    result.zeroJ = j;
     return result;
   }
 
@@ -276,46 +262,69 @@ public class Board {
     s.append(N + "\n");
     for (int i = 0; i < N; i++) {
       for (int j = 0; j < N; j++) {
-        s.append(String.format("%2d ", tiles[i][j]));
+        s.append(String.format("%2d ", (int) tiles[i][j]));
       }
       s.append("\n");
     }
     return s.toString();
   }
 
-  private int[][] copyArray(int[][] base) {
-    int[][] result = new int[N][];
+  private char[][] copyArray(int[][] base) {
+    char[][] result = new char[N][];
     for (int i = 0; i < base.length; i++) {
-      result[i] = new int[base[i].length];
+      result[i] = new char[base[i].length];
+      for (int inneridx = 0; inneridx < result[i].length; inneridx++) {
+        result[i][inneridx] = (char) base[i][inneridx];
+      }
+    }
+    return result;
+  }
+
+  private char[][] copyArray(char[][] base) {
+    char[][] result = new char[N][];
+    for (int i = 0; i < base.length; i++) {
+      result[i] = new char[base[i].length];
       System.arraycopy(base[i], 0, result[i], 0, base[i].length);
     }
     return result;
   }
 
-  private void swap(int[][] arr, IntVec2 first, IntVec2 second) {
-    int temp = arr[first.x][first.y];
-    arr[first.x][first.y] = arr[second.x][second.y];
-    arr[second.x][second.y] = temp;
+  private void swap(char[][] arr, int firsti, int firstj, int secondi, int secondj) {
+    char temp = arr[firsti][firstj];
+    arr[firsti][firstj] = arr[secondi][secondj];
+    arr[secondi][secondj] = temp;
   }
 
-  private IntVec2 getNeighborIndex(IntVec2 index,
-          NeighborDirection direction) {
+  /**
+   * Calculates permutation index for neighbor board.
+   * Bery strange behaviour of result saving:
+   * indexes will be saved to private vars resulti and resultj.
+   * @param i
+   * @param j
+   * @param direction
+   * @return is neighbor of this direction available?
+   */
+  private boolean getNeighborIndex(int i, int j,
+          int direction) {
 
-    IntVec2 result = new IntVec2(index);
-    if (direction == NeighborDirection.RIGHT && index.y != (N - 1)) {
-      result.y++;
-      return result;
-    } else if (direction == NeighborDirection.LEFT && index.y != 0) {
-      result.y--;
-      return result;
-    } else if (direction == NeighborDirection.UP && index.x != 0) {
-      result.x--;
-      return result;
-    } else if (direction == NeighborDirection.DOWN && index.x != (N - 1)) {
-      result.x++;
-      return result;
+    resulti = i;
+    resultj = j;
+//    IntVec2 result = new IntVec2(index);
+    if (direction == RIGHT && j != (N - 1)) {
+      resultj++;
+      return true;
+    } else if (direction == LEFT && j != 0) {
+      resultj--;
+      return true;
+    } else if (direction == UP && i != 0) {
+      resulti--;
+      return true;
+    } else if (direction == DOWN && i != (N - 1)) {
+      resulti++;
+      return true;
     }
-    result.set(INVALID_VALUE);
-    return result;
+    resulti = INVALID_VALUE;
+    resultj = INVALID_VALUE;
+    return false;
   }
 }
