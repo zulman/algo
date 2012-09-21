@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
  *
  * @author oleg.chumakov
  */
-public class PointTests {
+public class PointTest {
 
   private Point testPoint1;
   private Point testPoint2;

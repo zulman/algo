@@ -7,7 +7,11 @@
  *
  * @author Oleg.Chumakov
  */
+import java.util.TreeSet;
+
 public class PointSET {
+
+  private TreeSet<Point2D> points = new TreeSet<Point2D>();
 
   /**
    * construct an empty set of points
@@ -21,7 +25,7 @@ public class PointSET {
    * @return
    */
   public boolean isEmpty() {
-    return false;
+    return size() == 0;
   }
 
   /**
@@ -30,7 +34,7 @@ public class PointSET {
    * @return
    */
   public int size() {
-    return 0;
+    return points.size();
   }
 
   /**
@@ -39,6 +43,7 @@ public class PointSET {
    * @param p
    */
   public void insert(Point2D p) {
+    points.add(p);
   }
 
   /**
@@ -48,13 +53,17 @@ public class PointSET {
    * @return
    */
   public boolean contains(Point2D p) {
-    return false;
+    return points.contains(p);
   }
 
   /**
    * draw all of the points to standard draw
    */
   public void draw() {
+    for (Point2D p : points) {
+//      StdDraw.point(p.x(), p.y());
+      p.draw();
+    }
   }
 
   /**
@@ -64,7 +73,13 @@ public class PointSET {
    * @return
    */
   public Iterable<Point2D> range(RectHV rect) {
-    return new Stack<Point2D>();
+    Stack<Point2D> result = new Stack<Point2D>();
+    for (Point2D op : points) {
+      if (rect.contains(op)) {
+        result.push(op);
+      }
+    }
+    return result;
   }
 
   /**
@@ -74,6 +89,16 @@ public class PointSET {
    * @return
    */
   public Point2D nearest(Point2D p) {
-    return new Point2D(0, 0);
+    double min = Double.MAX_VALUE;
+    double tempDist;
+    Point2D result = null;
+    for (Point2D op : points) {
+      tempDist = op.distanceSquaredTo(p);
+      if (tempDist < min) {
+        min = tempDist;
+        result = op;
+      }
+    }
+    return result;
   }
 }
