@@ -89,10 +89,11 @@ public class KdTree {
 
     if (root == null) {
       root = new Node(p, new RectHV(0, 0, 1, 1), NodeType.VERTICAL);
+      size++;
     } else {
-      insert(root, p);
+      inspect(root, p, true);
     }
-    size++;
+
   }
 
   private NodeType invert(NodeType type) {
@@ -104,24 +105,59 @@ public class KdTree {
     return type;
   }
 
-  private void insert(Node base, Point2D point) {
+//  private void insert(Node base, Point2D point) {
+//    int comparasion = compare(base.p, point, base.type);
+//
+//    if (comparasion >= 0) {
+//      if (base.rt == null) {
+//        RectHV r = splitRect(base.rect, base.p, base.type, RectSplitType.POSITIVE);
+//        base.rt = new Node(point, r, invert(base.type));
+//      } else {
+//        insert(base.rt, point);
+//      }
+//    } else if (comparasion < 0) {
+//      if (base.lb == null) {
+//        RectHV r = splitRect(base.rect, base.p, base.type, RectSplitType.NEGATIVE);
+//        base.lb = new Node(point, r, invert(base.type));
+//      } else {
+//        insert(base.lb, point);
+//      }
+//    }
+//  }
+  private boolean inspect(Node base, Point2D point, boolean insertToEnd) {
     int comparasion = compare(base.p, point, base.type);
+
+    if (comparasion == 0) {
+      if (base.p.equals(point)) {
+        return true;
+      }
+    }
 
     if (comparasion >= 0) {
       if (base.rt == null) {
-        RectHV r = splitRect(base.rect, base.p, base.type, RectSplitType.POSITIVE);
-        base.rt = new Node(point, r, invert(base.type));
+        if (insertToEnd) {
+          RectHV r = splitRect(base.rect, base.p, base.type, RectSplitType.POSITIVE);
+          base.rt = new Node(point, r, invert(base.type));
+          size++;
+          return true;
+        }
       } else {
-        insert(base.rt, point);
+        return inspect(base.rt, point, insertToEnd);
       }
     } else if (comparasion < 0) {
       if (base.lb == null) {
-        RectHV r = splitRect(base.rect, base.p, base.type, RectSplitType.NEGATIVE);
-        base.lb = new Node(point, r, invert(base.type));
+        if (insertToEnd) {
+          RectHV r = splitRect(base.rect, base.p, base.type, RectSplitType.NEGATIVE);
+          base.lb = new Node(point, r, invert(base.type));
+          size++;
+          return true;
+        }
       } else {
-        insert(base.lb, point);
+        return inspect(base.lb, point, insertToEnd);
       }
     }
+
+    return false;
   }
 
   /**
@@ -190,7 +226,7 @@ public class KdTree {
    * @return
    */
   public boolean contains(Point2D p) {
-    return false;
+    return inspect(root, p, false);
   }
 
   /**
@@ -271,21 +307,38 @@ public class KdTree {
   }
 
   private void nearest(Node base, Point2D point) {
-    if (base.rect.distanceTo(point) > currentMinDist) {
+    if (base == null) {
       return;
     }
 
-    double tmpDist = base.p.distanceTo(point);
+    double tmpDist = base.p.distanceSquaredTo(point);
     if (tmpDist < currentMinDist) {
       currentMinDist = tmpDist;
       currentMin = base.p;
     }
-    //optimization required: check before start recursion
+    double lbDist = currentMinDist;
+    double rtDist = currentMinDist;
     if (base.lb != null) {
-      nearest(base.lb, point);
+      lbDist = base.lb.rect.distanceSquaredTo(point);
     }
     if (base.rt != null) {
-      nearest(base.rt, point);
+      rtDist = base.rt.rect.distanceSquaredTo(point);
+    }
+
+    if (lbDist <= rtDist) {
+      if (lbDist < currentMinDist) {
+        nearest(base.lb, point);
+      }
+      if (rtDist < currentMinDist) {
+        nearest(base.rt, point);
+      }
+    } else if (rtDist < lbDist) {
+      if (rtDist < currentMinDist) {
+        nearest(base.rt, point);
+      }
+      if (lbDist < currentMinDist) {
+        nearest(base.lb, point);
+      }
     }
   }
 }

@@ -1,56 +1,69 @@
-///*
-// * Sep 21, 2012
-// * 6:36:18 PM
-// */
-//
-//import org.junit.Before;
-//import org.junit.Test;
-//import static org.junit.Assert.*;
-//
-///**
-// *
-// * @author oleg.chumakov
-// */
-//public class KdTreeTest {
-//
-//  private KdTree tree;
-//
-//  public KdTreeTest() {
-//  }
-//
-//  @Before
-//  public void setUp() {
-//    tree = new KdTree();
-//    tree.insert(new Point2D(0.5, 0.5));
-//  }
-//
-//  /**
-//   * Test of isEmpty method, of class KdTree.
-//   */
-//  @Test
-//  public void testIsEmpty() {
-//    tree = new KdTree();
-//    assertEquals(true, tree.isEmpty());
-//
-//  }
-//
-//  /**
-//   * Test of size method, of class KdTree.
-//   */
-//  @Test
-//  public void testSize() {
-//    assertEquals(1, tree.size());
-//  }
-//
-//  /**
-//   * Test of insert method, of class KdTree.
-//   */
-//  @Test
-//  public void testInsert() {
-//    tree.insert(new Point2D(0.25, 0.25));
-//    assertEquals(2, tree.size());
-//  }
-//
+/*
+ * Sep 21, 2012
+ * 6:36:18 PM
+ */
+
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+/**
+ *
+ * @author oleg.chumakov
+ */
+public class KdTreeTest {
+
+  private KdTree tree;
+  private Point2D p = new Point2D(0.5, 0.5);
+
+  public KdTreeTest() {
+  }
+
+  @Before
+  public void setUp() {
+    tree = new KdTree();
+    tree.insert(p);
+  }
+
+  /**
+   * Test of isEmpty method, of class KdTree.
+   */
+  @Test
+  public void testIsEmpty() {
+    tree = new KdTree();
+    assertEquals(true, tree.isEmpty());
+
+  }
+
+  /**
+   * Test of size method, of class KdTree.
+   */
+  @Test
+  public void testSize() {
+    assertEquals(1, tree.size());
+  }
+
+  /**
+   * Test of insert method, of class KdTree.
+   */
+  @Test
+  public void testInsert() {
+    tree.insert(new Point2D(0.25, 0.25));
+    assertEquals(2, tree.size());
+  }
+
+  /**
+   * Test of contains method, of class KdTree.
+   */
+  @Test
+  public void testContains() {
+    Point2D p1 = new Point2D(0.25, 0.25);
+    Point2D p2 = new Point2D(0.3, 0.25);
+    tree.insert(p1);
+    assertEquals(true, tree.contains(p1));
+    assertEquals(true, tree.contains(p));
+    assertEquals(false, tree.contains(p2));
+  }
 //  @Test
 //  public void testCompare() {
 //    Point2D a = new Point2D(1, 1);
@@ -66,7 +79,6 @@
 //    res = tree.compare(b, a, KdTree.NodeType.VERTICAL);
 //    assertEquals(-1, res);
 //  }
-//
 //  @Test
 //  public void testSplitRect() {
 //
@@ -98,25 +110,4 @@
 //            KdTree.RectSplitType.NEGATIVE);
 //    assertEquals(true, res.equals(rHN));
 //  }
-////  /**
-////   * Test of contains method, of class KdTree.
-////   */
-////  @Test
-////  public void testContains() {
-////
-////  }
-////  /**
-////   * Test of range method, of class KdTree.
-////   */
-////  @Test
-////  public void testRange() {
-////  
-////  }
-////  /**
-////   * Test of nearest method, of class KdTree.
-////   */
-////  @Test
-////  public void testNearest() {
-////
-////  }
-//}
+}
