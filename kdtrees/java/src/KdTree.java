@@ -305,6 +305,22 @@ public class KdTree {
 
     return currentMin;
   }
+  
+   public Iterable<Point2D> levelOrder() {
+    Queue<Point2D> keys = new Queue<Point2D>();
+    Queue<Node> queue = new Queue<Node>();
+    queue.enqueue(root);
+    while (!queue.isEmpty()) {
+      Node x = queue.dequeue();
+      if (x == null) {
+        continue;
+      }
+      keys.enqueue(x.p);
+      queue.enqueue(x.lb);
+      queue.enqueue(x.rt);
+    }
+    return keys;
+  }
 
   private void nearest(Node base, Point2D point) {
     if (base == null) {
